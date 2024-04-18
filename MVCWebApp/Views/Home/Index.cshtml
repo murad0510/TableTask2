@@ -1,0 +1,114 @@
+﻿@using AzureStorageLibrary.Models
+@using AzureStorageLibrary.ViewModels
+@model ProductAndStoreViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h2>Add Or Update Product</h2>
+
+<form class="form-inline" asp-action="@(ViewBag.IsUpdate ? "Update" : "Create")" method="post" enctype="application/x-www-form-urlencoded">
+
+    <input class="form-control mr-1" asp-for="Product.Name" placeholder="Enter Name" />
+    <input class="form-control mr-1" asp-for="Product.Price" placeholder="Enter Price" />
+    <input class="form-control mr-1" asp-for="Product.Stock" placeholder="Enter Stock" />
+    <input class="form-control mr-1" asp-for="Product.Color" placeholder="Enter Color" />
+
+    <input type="hidden" asp-for="Product.RowKey" />
+    <input type="hidden" asp-for="Product.PartitionKey" />
+    <input type="hidden" asp-for="Product.ETag" />
+
+    <select asp-for="Product.StoreKey">
+        @if (ViewBag.stores.Count != 0)
+        {
+            for (int i = 0; i < ViewBag.stores.Count; i++)
+            {
+                if (ViewBag.IsUpdate && Model.Product.RowKey == @ViewBag.stores[i].RowKey)
+                {
+                    <option value="@ViewBag.stores[i].RowKey" selected>@ViewBag.stores[i].CountryName</option>
+                }
+                else
+                {
+                    <option value="@ViewBag.stores[i].RowKey">@ViewBag.stores[i].CountryName</option>
+                }
+            }
+        }
+    </select>
+
+    <input class="btn btn-primary" type="submit" value="@(ViewBag.IsUpdate ? "Update Product":"Add new Product")" />
+</form>
+
+<form class="form-inline" asp-action="AddStore" method="post" enctype="application/x-www-form-urlencoded">
+    <input class="form-control mr-1" asp-for="Store.CountryName" placeholder="Enter Country Name" />
+    <input class="form-control mr-1" asp-for="Store.CityName" placeholder="Enter City Name" />
+    <input class="form-control mr-1" asp-for="Store.Address" placeholder="Enter Address" />
+
+    <input type="hidden" asp-for="Store.RowKey" />
+    <input type="hidden" asp-for="Store.PartitionKey" />
+    <input type="hidden" asp-for="Store.ETag" />
+
+    <button class="btn btn-primary" type="submit">Add Store</button>
+
+</form>
+
+<h1>Products</h1>
+
+<form class="form-inline" method="get" asp-action="Query">
+    <input type="number" name="filterPrice" />
+    <input type="submit" class="btn btn-dark" value="Query" />
+</form>
+
+<table class="table table-bordered">
+    <tr>
+        <th>RowKey</th>
+        <th>PartitionKey</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Color</th>
+        <th>TimeStamp</th>
+        <th>Store</th>
+        <th>Actions</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in ViewBag.products as List<Product>)
+    {
+        <tr>
+            <td>
+                @item.RowKey
+            </td>
+            <td>
+                @item.PartitionKey
+            </td>
+            <td>
+                @item.Name
+            </td>
+            <td>
+                @item.Price
+            </td>
+            <td>
+                @item.Stock
+            </td>
+            <td>
+                @item.Color
+            </td>
+            <td>
+                @item.Timestamp
+            </td>
+            <td>
+                @item.StoreKey
+            </td>
+            <td>
+                <a class="btn btn-danger" asp-action="Update" asp-controller="Home"
+                   asp-route-rowKey="@item.RowKey" asp-route-partitionKey="@item.PartitionKey">Update</a>
+            </td>
+
+            <td>
+                <a class="btn btn-danger" asp-action="Delete" asp-controller="Home"
+                   asp-route-rowKey="@item.RowKey" asp-route-partitionKey="@item.PartitionKey">Delete</a>
+            </td>
+        </tr>
+    }
+</table>
